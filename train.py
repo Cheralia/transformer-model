@@ -6,7 +6,7 @@ import torch
 from tokenizer.tokenizer import DataHandler
 from architecture.architecture import DisentangledTransformer, ModelConfig
 
-# --- Logger Setup ---
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -14,11 +14,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# --- Hyperparameters ---
+
 BATCH_SIZE = 32
 BLOCK_SIZE = 128
 LEARNING_RATE = 3e-4
-EPOCHS = 2  # Keep small for CPU demonstration
+EPOCHS = 50  
 DEVICE = 'cpu'
 
 def get_batch(data, block_size, batch_size):
@@ -41,7 +41,7 @@ def main():
     model = DisentangledTransformer(config).to(DEVICE)
     optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
     
-    logger.info(f"Model initialized on {DEVICE}. Parameters: {sum(p.numel() for p in model.parameters())/1e6:.2f}M")
+    logger.info(f"Model initialized on {DEVICE}. Parameters: {sum(p.numel() for p in model.parameters())/1e6:.2f}M Vocab Size: {vocab_size}")
     logger.info("Architecture uses RoPE to prevent word-position entanglement.")
 
     # 3. Training Loop
@@ -65,7 +65,7 @@ def main():
             # Logging
             if i % 10 == 0:
                 perplexity = math.exp(loss.item())
-                logger.info(f"Epoch {epoch+1} | Batch {i}/{iters_per_epoch} | Loss: {loss.item():.4f} | Perplexity: {perplexity:.2f}")
+                logger.info(f"Epoch {epoch+1} | Batch {i+1}/{iters_per_epoch} | Loss: {loss.item():.4f} | Perplexity: {perplexity:.2f}")
 
         # Validation at end of epoch
         model.eval()

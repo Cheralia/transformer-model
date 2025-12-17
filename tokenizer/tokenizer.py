@@ -20,7 +20,7 @@ class DataHandler:
             with open(self.input_file, 'w') as f:
                 f.write(requests.get(url).text)
 
-    def train_tokenizer(self, vocab_size=5000):
+    def train_tokenizer(self, vocab_size=50000):
         if not os.path.exists(self.tokenizer_file):
             print("Training BPE Tokenizer...")
             tokenizer = Tokenizer(BPE(unk_token="[UNK]"))

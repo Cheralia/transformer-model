@@ -7,7 +7,7 @@ from dataclasses import dataclass
 @dataclass
 class ModelConfig:
     block_size: int = 128     # Context window
-    vocab_size: int = 5000    # Defined by tokenizer
+    vocab_size: int = 50000    # Defined by tokenizer
     n_layer: int = 4
     n_head: int = 4
     n_embd: int = 256
@@ -45,6 +45,7 @@ class CausalSelfAttention(nn.Module):
         assert config.n_embd % config.n_head == 0
         self.head_dim = config.n_embd // config.n_head
         self.n_head = config.n_head
+        self.n_embd = config.n_embd  # <--- FIX 1: Save n_embd to self
         
         self.c_attn = nn.Linear(config.n_embd, 3 * config.n_embd, bias=False)
         self.c_proj = nn.Linear(config.n_embd, config.n_embd, bias=False)
@@ -61,7 +62,9 @@ class CausalSelfAttention(nn.Module):
     def forward(self, x):
         B, T, C = x.size()
         qkv = self.c_attn(x)
-        q, k, v = qkv.split(config.n_embd, dim=2)
+        
+        # <--- FIX 2: Use self.n_embd instead of config.n_embd
+        q, k, v = qkv.split(self.n_embd, dim=2)
         
         # Reshape to (B, T, n_head, head_dim) for RoPE application
         k = k.view(B, T, self.n_head, self.head_dim)
@@ -70,16 +73,11 @@ class CausalSelfAttention(nn.Module):
 
         # Apply RoPE to Q and K
         cos, sin = self.rotary_emb(T)
-        # Apply to each head. Merge Batch and Head dims for efficiency if needed, 
-        # but here we loop conceptually via broadcasting
-        # To broadcast correctly we need to move Head dim out or handle it carefully.
-        # Simple method: Transpose to (B, H, T, D) then apply
         
         q = q.transpose(1, 2) # (B, H, T, D)
         k = k.transpose(1, 2) # (B, H, T, D)
         
         # Adjust dimensions for the apply function which expects (..., T, D)
-        # We flat the batch and head for the function application
         q_flat = q.reshape(B * self.n_head, T, self.head_dim)
         k_flat = k.reshape(B * self.n_head, T, self.head_dim)
         
