@@ -5,8 +5,8 @@ This repository contains a PyTorch implementation of a Transformer language mode
 ## 🚀 Key Architectural Feature: Solving Entanglement
 **The Problem:** In standard transformers, adding Word Embeddings + Positional Embeddings creates "entanglement" in the latent space, where word vectors learn positional heuristics and lose semantic purity.
 **The Solution:** This implementation uses **Rotary Positional Embeddings (RoPE)**. 
-- We **removed** additive positional embeddings from the input.
-- We **inject** position information by rotating the Query and Key vectors inside the attention mechanism.
+- **removed** additive positional embeddings from the input.
+- **inject** position information by rotating the Query and Key vectors inside the attention mechanism.
 - This ensures the latent space remains cleaner and more interpretable.
 
 ## 📂 Project Structure
@@ -23,7 +23,8 @@ This repository contains a PyTorch implementation of a Transformer language mode
 git clone https://github.com/Cheralia/transformer-model.git
 ```
 2. Configure the environment
-It is recommended to use a virtual environment.
+
+- It is recommended to use a virtual environment.
 
 **Mac/Linux:**
 ```bash
@@ -36,7 +37,6 @@ pip install -r requirements.txt
 The tokenizer script will download the dataset, train a BPE tokenizer, and save train.pt, val.pt, and test.pt to the data/ folder.
 
 ```bash
-# This is called automatically by train.py, but you can run it manually:
 python3 tokenizer/tokenizer.py
 ```
 ### 3. Training
